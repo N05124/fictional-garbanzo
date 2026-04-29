@@ -1,8 +1,19 @@
 # fictional-garbanzo
-a concept project for an enumeration method for storing credentials
+
+a concept project for an enumeration method to store authorization credentials
+
 The project is intended to reduce the number of sizable steps in storing CLI or text document credentials.
 credentials that would originate as human readable JSON, text stored credentials such as from ssh keygen
 or API credentials stored in easily accesable document locations in plain text 
+
+
+-proposed process
+python3 -m http.server <port>:<ssh-keygen [storage-args]>
+
+starts: 127.0.0.1/keystorage/<key: private|public>/blockchain.exe
+runs: blockchain.exe
+validates: key-set
+issues credentials
 
 🛡️ Sentinel: Local-First Decentralized SSH CA
 Sentinel is a cross-platform, local-first credential management system that replaces static SSH keys with short-lived, signed certificates. It eliminates the need for a centralized cloud-based Certificate Authority (CA) by turning your trusted devices into a distributed identity network.
@@ -70,11 +81,4 @@ Tamper-Evident Logs: Local logs are linked using a Merkle-tree-inspired hash cha
 🤝 Contributing
 We follow a Zero-Knowledge/Least-Privilege development philosophy. Please read our SECURITY.md before submitting PRs involving cryptographic primitives.
 
--proposed process
-python3 -m http.server <port>:<ssh-keygen [storage-args]>
-
-starts: 127.0.0.1/keystorage/<key: private|public>/blockchain.exe
-runs: blockchain.exe
-validates: key-set
-issues credentials
 
