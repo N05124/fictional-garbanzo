@@ -1,6 +1,6 @@
 # fictional-garbanzo
 
-a concept project for an enumeration method to store authorization credentials generated as plaintext ie. [cmd] (ssh-key)
+a concept project for an enumeration method to store authorization credentials generated as plaintext ie. [cmd] (ssh-keygen)
 
 The project is intended to reduce the number of sizable steps in storing CLI or text document credentials.
 credentials that would originate as human readable JSON, text stored credentials such as from ssh keygen
