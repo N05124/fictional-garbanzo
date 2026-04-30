@@ -1,0 +1,284 @@
+Got it—you’re not looking for narrative, you want something you can drop straight into a design section. Here’s a clean, structured breakdown of the patterns, where they live in your pipeline, and Python-ready templates you can build from.
+
+⸻
+
+1. Factory / Builder — Credential & Key Creation
+
+Where it applies:
+Credential generation layer (client → service boundary)
+
+Purpose:
+Encapsulate creation of passwords, hashes, SSH keys, and future credential types.
+
+Template:
+
+from abc import ABC, abstractmethod
+class CredentialFactory(ABC):
+    @abstractmethod
+    def create(self, data):
+        pass
+class PasswordFactory(CredentialFactory):
+    def create(self, raw_password: str):
+        return self._hash_password(raw_password)
+    def _hash_password(self, password):
+        # plug in bcrypt/argon2
+        return f"hashed::{password}"
+class SSHKeyFactory(CredentialFactory):
+    def create(self, _=None):
+        return self._generate_keypair()
+    def _generate_keypair(self):
+        return {"public": "pub_key", "private": "priv_key"}
+
+⸻
+
+2. Strategy — Validation & Encryption
+
+Where it applies:
+Validation stages across pipeline (pre-store, post-store, handshake validation)
+
+Purpose:
+Swap validation/encryption logic without conditionals.
+
+Template:
+
+from abc import ABC, abstractmethod
+class ValidationStrategy(ABC):
+    @abstractmethod
+    def validate(self, data):
+        pass
+class PasswordValidation(ValidationStrategy):
+    def validate(self, password):
+        return len(password) >= 8
+class SSHKeyValidation(ValidationStrategy):
+    def validate(self, keypair):
+        return "public" in keypair and "private" in keypair
+class Validator:
+    def __init__(self, strategy: ValidationStrategy):
+        self.strategy = strategy
+    def validate(self, data):
+        return self.strategy.validate(data)
+
+⸻
+
+3. State Machine — Session Lifecycle
+
+Where it applies:
+End-to-end session control (client → pivot → host → return)
+
+Purpose:
+Control execution order and prevent invalid transitions.
+
+Template:
+
+from enum import Enum, auto
+class SessionState(Enum):
+    INIT = auto()
+    VALIDATING = auto()
+    ENCRYPTING = auto()
+    STORING = auto()
+    COMPLETE = auto()
+    FAILED = auto()
+class Session:
+    def __init__(self):
+        self.state = SessionState.INIT
+    def transition(self, new_state):
+        valid = {
+            SessionState.INIT: [SessionState.VALIDATING],
+            SessionState.VALIDATING: [SessionState.ENCRYPTING, SessionState.FAILED],
+            SessionState.ENCRYPTING: [SessionState.STORING],
+            SessionState.STORING: [SessionState.COMPLETE],
+        }
+        if new_state in valid.get(self.state, []):
+            self.state = new_state
+        else:
+            raise Exception(f"Invalid transition: {self.state} → {new_state}")
+
+⸻
+
+4. Observer / Event Bus — Handshake & Async Validation
+
+Where it applies:
+Validation handshake between distributed nodes
+
+Purpose:
+Decouple sender/receiver and avoid blocking flows.
+
+Template:
+
+class EventBus:
+    def __init__(self):
+        self.subscribers = {}
+    def subscribe(self, event, handler):
+        self.subscribers.setdefault(event, []).append(handler)
+    def publish(self, event, data):
+        for handler in self.subscribers.get(event, []):
+            handler(data)
+# Example usage
+def on_validation_complete(data):
+    print("Validation result:", data)
+bus = EventBus()
+bus.subscribe("validation_complete", on_validation_complete)
+bus.publish("validation_complete", {"status": "ok"})
+
+⸻
+
+5. Repository — Credential Storage
+
+Where it applies:
+Storage layer (file system, DB, vault, etc.)
+
+Purpose:
+Abstract persistence and enforce secure handling.
+
+Template:
+
+from abc import ABC, abstractmethod
+class CredentialRepository(ABC):
+    @abstractmethod
+    def save(self, credential):
+        pass
+    @abstractmethod
+    def load(self, credential_id):
+        pass
+class InMemoryCredentialRepository(CredentialRepository):
+    def __init__(self):
+        self.store = {}
+    def save(self, credential):
+        cid = len(self.store) + 1
+        self.store[cid] = credential
+        return cid
+    def load(self, credential_id):
+        return self.store.get(credential_id)
+
+⸻
+
+6. Facade — Client Interface
+
+Where it applies:
+Entry point for Client A
+
+Purpose:
+Hide orchestration complexity behind a simple API.
+
+Template:
+
+class CredentialService:
+    def __init__(self, factory, validator, repository):
+        self.factory = factory
+        self.validator = validator
+        self.repository = repository
+    def onboard_password(self, raw_password):
+        credential = self.factory.create(raw_password)
+        if not self.validator.validate(raw_password):
+            raise ValueError("Validation failed")
+        return self.repository.save(credential)
+
+⸻
+
+7. Retry / Circuit Breaker — Network Resilience
+
+Where it applies:
+Network calls (client ↔ pivot ↔ host)
+
+Purpose:
+Handle transient failures and prevent cascading issues.
+
+Template:
+
+import time
+def retry(operation, attempts=3, delay=1):
+    for attempt in range(attempts):
+        try:
+            return operation()
+        except Exception as e:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(delay)
+class CircuitBreaker:
+    def __init__(self, failure_threshold=3):
+        self.failures = 0
+        self.threshold = failure_threshold
+    def call(self, operation):
+        if self.failures >= self.threshold:
+            raise Exception("Circuit open")
+        try:
+            result = operation()
+            self.failures = 0
+            return result
+        except Exception:
+            self.failures += 1
+            raise
+
+⸻
+
+8. Command — Pipeline Operations
+
+Where it applies:
+Each pipeline step (generate → validate → encrypt → store)
+
+Purpose:
+Encapsulate actions for queuing, logging, retrying.
+
+Template:
+
+from abc import ABC, abstractmethod
+class Command(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+class GenerateCredentialCommand(Command):
+    def __init__(self, factory, data):
+        self.factory = factory
+        self.data = data
+    def execute(self):
+        return self.factory.create(self.data)
+class ValidateCommand(Command):
+    def __init__(self, validator, data):
+        self.validator = validator
+        self.data = data
+    def execute(self):
+        return self.validator.validate(self.data)
+
+⸻
+
+9. Singleton (Limited Use) — Shared Services
+
+Where it applies:
+Config, logging, event bus (only if truly global)
+
+Purpose:
+Ensure one shared instance
+
+Template:
+
+class SingletonMeta(type):
+    _instance = None
+    def __call__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__call__(*args, **kwargs)
+        return cls._instance
+class Config(metaclass=SingletonMeta):
+    def __init__(self):
+        self.settings = {"env": "dev"}
+
+⸻
+
+How It Fits Together (Quick Mapping)
+
+* Client
+    * Uses → CredentialService (Facade)
+* Service Layer
+    * Orchestrates → State Machine
+    * Executes → Command objects
+    * Uses → Strategy (validation)
+* Domain Layer
+    * Credential objects
+    * KeyPair objects
+* Infrastructure Layer
+    * Repository (storage)
+    * EventBus (observer)
+    * Retry/CircuitBreaker (network resilience)
+
+⸻
+
+If you want the next step, I can consolidate this into a single runnable skeleton that wires these together into your actual client → pivot → host flow instead of isolated templates.
