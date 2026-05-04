@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRDT // Secure Transmission</title>
+  <link rel="stylesheet" href="/static/index.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Header ── -->
+    <header>
+      <div class="logo">CRDT<span>//</span>SECURE TRANSMISSION</div>
+      <div id="server-badge" class="offline">● OFFLINE</div>
+    </header>
+
+    <!-- ── Main ── -->
+    <main>
+
+      <!-- Credential panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-dot active"></div>
+          <span class="panel-label">Credential Package</span>
+        </div>
+        <div class="panel-body">
+
+          <div class="field-row">
+            <label for="input-key">Key Value</label>
+            <input
+              id="input-key"
+              type="password"
+              placeholder="credential key..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="input-endpoint">Endpoint</label>
+            <input
+              id="input-endpoint"
+              type="text"
+              placeholder="http://192.168.1.x:8080"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="field-row">
+            <label for="input-transport">Transport</label>
+            <select id="input-transport">
+              <option value="webapp">WEBAPP</option>
+              <option value="ssh">SSH</option>
+            </select>
+          </div>
+
+          <div class="btn-row">
+            <button id="btn-send" class="primary">▶ Transmit</button>
+            <button id="btn-clear" class="secondary">✕ Clear Log</button>
+          </div>
+
+          <div id="progress-wrap">
+            <div id="progress-bar"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Server info panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-dot ok"></div>
+          <span class="panel-label">Server Info</span>
+        </div>
+        <div class="panel-body">
+          <div class="field-row">
+            <label>Local IP</label>
+            <input id="server-ip" type="text" readonly placeholder="polling..." />
+          </div>
+          <div class="field-row">
+            <label>Port</label>
+            <input type="text" readonly value="8080" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Log panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-dot"></div>
+          <span class="panel-label">Transmission Log</span>
+        </div>
+        <div class="panel-body">
+          <div id="log-output"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer>
+      <span>CRDT // v0.1</span>
+      <span id="footer-time"></span>
+    </footer>
+
+  </div>
+
+  <script src="/static/index.js"></script>
+  <script>
+    // Live clock in footer
+    const ft = document.getElementById('footer-time');
+    const tick = () => { ft.textContent = new Date().toUTCString(); };
+    tick(); setInterval(tick, 1000);
+  </script>
+</body>
+</html>
