@@ -1,0 +1,75 @@
+<!--Docker-Compose.yml-->
+services:
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: jupyterlab
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Bind ONLY to localhost
+    ports:
+      - "127.0.0.1:8888:8888"
+
+    # Persistent workspace
+    volumes:
+      - ./workspace:/workspace:rw
+
+    # Run as unprivileged user
+    user: "1000:1000"
+
+    # Prevent privilege escalation
+    security_opt:
+      - no-new-privileges:true
+
+    # Drop all Linux capabilities
+    cap_drop:
+      - ALL
+
+    # Prevent gaining new caps via setuid binaries
+    privileged: false
+
+    # Resource limits
+    mem_limit: 4g
+    cpus: 4
+
+    # Read-only root filesystem
+    read_only: true
+
+    # Writable temp/runtime locations
+    tmpfs:
+      - /tmp:size=512m,noexec,nosuid,nodev
+      - /run:size=128m,noexec,nosuid,nodev
+
+    # Minimal writable locations required by Jupyter
+    environment:
+      - JUPYTER_RUNTIME_DIR=/tmp/jupyter-runtime
+      - MPLCONFIGDIR=/tmp/matplotlib
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+
+    # Health monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8888/lab"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Logging limits
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Prevent container from talking to host services unnecessarily
+    dns:
+      - 9.9.9.9
+      - 1.1.1.1
+
+    # Graceful shutdown
+    stop_grace_period: 20s
