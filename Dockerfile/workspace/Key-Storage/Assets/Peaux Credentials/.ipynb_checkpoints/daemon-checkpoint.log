@@ -1,0 +1,29 @@
+2026-05-05 12:06:26,504 [INFO] Loaded Fernet key from fernet.key
+2026-05-05 12:18:07,327 [INFO] Connection from 127.0.0.1:60427
+2026-05-05 12:19:20,105 [INFO] Loaded Fernet key from fernet.key
+2026-05-05 12:19:41,577 [INFO] Loaded Fernet key from fernet.key
+2026-05-05 12:19:42,679 [INFO] Loaded Fernet key from fernet.key
+2026-05-05 12:20:45,504 [INFO] Credential daemon starting on 127.0.0.1:9101
+2026-05-05 12:20:45,507 [INFO] Listening on port 9101 (LAN + WAN)
+2026-05-05 12:20:46,511 [INFO] Connection from 127.0.0.1:60575
+2026-05-05 12:20:46,514 [INFO] Connection from 127.0.0.1:60576
+2026-05-05 12:20:46,517 [INFO] Connection from 127.0.0.1:60577
+2026-05-05 12:20:48,519 [INFO] Daemon stopped.
+2026-05-05 12:20:57,459 [INFO] Credential daemon starting on 127.0.0.1:9101
+2026-05-05 12:20:57,460 [INFO] Listening on port 9101 (LAN + WAN)
+2026-05-05 12:20:58,464 [INFO] Connection from 127.0.0.1:60595
+2026-05-05 12:20:58,472 [INFO] Connection from 127.0.0.1:60596
+2026-05-05 12:20:58,477 [INFO] Connection from 127.0.0.1:60597
+2026-05-05 12:21:00,478 [INFO] Daemon stopped.
+2026-05-05 12:35:08,704 [INFO] Loaded Fernet key from fernet.key
+2026-05-05 12:35:12,680 [INFO] Connection from 127.0.0.1:61590
+2026-05-05 12:35:14,927 [INFO] Credential daemon starting on 127.0.0.1:9101
+2026-05-05 12:35:14,929 [INFO] Listening on port 9101 (LAN + WAN)
+2026-05-05 12:35:15,932 [INFO] Connection from 127.0.0.1:61593
+2026-05-05 12:35:15,937 [INFO] Connection from 127.0.0.1:61594
+2026-05-05 12:35:15,941 [INFO] Connection from 127.0.0.1:61595
+2026-05-05 12:35:17,942 [INFO] Daemon stopped.
+2026-05-05 12:35:21,172 [INFO] Credential daemon starting on 127.0.0.1:9101
+2026-05-05 12:35:21,174 [INFO] Listening on port 9101 (LAN + WAN)
+2026-05-05 12:35:28,261 [INFO] Signal 2 received — shutting down.
+2026-05-05 12:35:29,180 [INFO] Daemon stopped.

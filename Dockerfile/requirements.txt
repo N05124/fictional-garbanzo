@@ -2,8 +2,6 @@ jupyterlab
 numpy
 pandas
 matplotlib
-seaborn
-scikit-learn
 ipykernel
 ipywidgets
-plotly
+
